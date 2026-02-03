@@ -1,0 +1,10 @@
+3
+apple
+banana
+cherry
+5
+apple
+cherry
+watermelon
+Banana
+banana
