@@ -108,12 +108,18 @@ SLList *parse_string(char *str) {
 
 
     SLList *list = sll_create_list();
-    SLLNode *curPtr = list->head;
+    list->head = NULL;
+    SLLNode *lastNode = NULL;
 
     int len = strlen(str);
     for (int i = 0; i < len; i ++) {
-        curPtr = sll_create_node(char_to_int(str[i]));
-        curPtr = curPtr->next;
+        if (list->head == NULL) {
+            list->head = sll_create_node(char_to_int(str[i]));
+            lastNode = list->head;
+        } else {
+            lastNode->next = sll_create_node(char_to_int(str[i]));
+            lastNode = lastNode->next;
+        }
     }
     return list;
     
@@ -124,7 +130,11 @@ void print_number_recursive(SLLNode *node) {
     // TODO: Complete this function
     // TODO 2 BEGIN
     
-    
+    SLLNode* ptr = node;
+    while (ptr != NULL) {
+        printf("%d", ptr->data);
+        ptr = ptr->next;
+    }
     
     
     
@@ -136,27 +146,46 @@ SLList *add(SLList *num1, SLList *num2) {
     // TODO 3 BEGIN
     
     SLList *list = sll_create_list();
+    list->head = NULL;
 
-    SLLNode *ptr1 = num1->head;
-    SLLNode *ptr2 = num2->head;
-    SLLNode *curPtr = list->head;
-    while (ptr1 != NULL && ptr2 != NULL) {
-        int num = ptr1->data + ptr2->data;
-        if (num > 9) {
-            int num1 = num / 10;
-            int num2 = num % 10;
-            curPtr = sll_create_node(num1);
-            curPtr = curPtr->next;
-            curPtr = sll_create_node(num2);
-        } else {
-            curPtr = sll_create_node(num);
-        }
+    char* str1 = calloc(MAX_LEN + 1, sizeof(char));
+    char* str2 = calloc(MAX_LEN + 1, sizeof(char));
 
-        ptr1 = ptr1->next;
-        ptr2 = ptr2->next;
-        curPtr = curPtr->next;
+    SLLNode* ptr = num1->head;
+    int i = 0;
+    while (ptr != NULL) {
+        str1[i++] = ptr->data + '0';
+        ptr = ptr->next;
     }
-    
+    str1[i] = '\0'; // STOP SIGN FOR STR1
+
+    // For str2
+    i = 0;
+    ptr = num2->head;
+    while (ptr != NULL) {
+        str2[i++] = ptr->data + '0';
+        ptr = ptr->next;
+    }
+    str2[i] = '\0';
+
+
+    long long int sum = atoll(str1) + atoll(str2);
+    char sumStr[MAX_LEN];
+    sprintf(sumStr, "%lld", sum);
+
+    SLLNode* lastNode = NULL;
+    for (i = 0; i < strlen(sumStr); i++) {
+        if (list->head == NULL) {
+            list->head = sll_create_node(char_to_int(sumStr[i]));
+            lastNode = list->head;
+        } else {
+            lastNode->next = sll_create_node(char_to_int(sumStr[i]));
+            lastNode = lastNode->next;
+        }
+    }
+
+    free(str1);
+    free(str2);
     return list;
     // TODO 3 END
 }
@@ -164,11 +193,45 @@ SLList *add(SLList *num1, SLList *num2) {
 int is_palindrome(SLList *num) {
     // TODO: Complete this function
     // TODO 4 BEGIN
-    
-    
-    
-    
-    
+    int maxSize = 50;
+    int count = 0;
+    int* arr = malloc(sizeof(int) * maxSize);
+    int* temp = NULL;
+
+    SLLNode* ptr = num->head;
+    while (ptr != NULL) {
+        if (count == maxSize) {
+            maxSize += 50;
+            temp = realloc(arr, sizeof(int) * maxSize);
+            free(arr);
+            arr = temp;
+        }
+        arr[count] = ptr->data;
+
+        count++;
+        ptr = ptr->next;
+    }
+
+    int i = 0;
+    int j = count - 1;
+    while (i < j) {
+        if (arr[i] != arr[j]) {
+            free(arr);
+            if (temp != NULL) {
+                free(temp);
+            }
+            return 0;
+        }
+
+        i++;
+        j--;
+    }
+
+    free(arr);
+    if (temp != NULL) {
+        free(temp);
+    }
+    return 1;
     // TODO 4 END
 }
 
