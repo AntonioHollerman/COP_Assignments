@@ -112,7 +112,7 @@ SLList *parse_string(char *str) {
     SLLNode *lastNode = NULL;
 
     int len = strlen(str);
-    for (int i = 0; i < len; i ++) {
+    for (int i = len - 1 ; i >= 0; i--) {
         if (list->head == NULL) {
             list->head = sll_create_node(char_to_int(str[i]));
             lastNode = list->head;
@@ -129,13 +129,21 @@ SLList *parse_string(char *str) {
 void print_number_recursive(SLLNode *node) {
     // TODO: Complete this function
     // TODO 2 BEGIN
-    
+    char str[MAX_LEN + 1];
+    int count = 0;
+
     SLLNode* ptr = node;
+    int i = 0;
     while (ptr != NULL) {
-        printf("%d", ptr->data);
+        str[i] = ptr->data + '0';
         ptr = ptr->next;
+        i++;
+        count++;
     }
-    
+
+    for (int j = count - 1; j >= 0; j--) {
+        printf("%c", str[j]);
+    }
     
     
     // TODO 2 END
@@ -147,45 +155,62 @@ SLList *add(SLList *num1, SLList *num2) {
     
     SLList *list = sll_create_list();
     list->head = NULL;
+    SLLNode *lastNode = NULL;
 
-    char* str1 = calloc(MAX_LEN + 1, sizeof(char));
-    char* str2 = calloc(MAX_LEN + 1, sizeof(char));
+    int carryOver = 0;
+    int sum = 0;
+    SLLNode *ptr1 = num1->head;
+    SLLNode *ptr2 = num2->head;
 
-    SLLNode* ptr = num1->head;
-    int i = 0;
-    while (ptr != NULL) {
-        str1[i++] = ptr->data + '0';
-        ptr = ptr->next;
-    }
-    str1[i] = '\0'; // STOP SIGN FOR STR1
+    while (ptr1 != NULL && ptr2 != NULL) {
+        sum = carryOver + ptr1->data + ptr2->data;
 
-    // For str2
-    i = 0;
-    ptr = num2->head;
-    while (ptr != NULL) {
-        str2[i++] = ptr->data + '0';
-        ptr = ptr->next;
-    }
-    str2[i] = '\0';
-
-
-    long long int sum = atoll(str1) + atoll(str2);
-    char sumStr[MAX_LEN];
-    sprintf(sumStr, "%lld", sum);
-
-    SLLNode* lastNode = NULL;
-    for (i = 0; i < strlen(sumStr); i++) {
         if (list->head == NULL) {
-            list->head = sll_create_node(char_to_int(sumStr[i]));
+            list->head = sll_create_node(sum % 10);
             lastNode = list->head;
         } else {
-            lastNode->next = sll_create_node(char_to_int(sumStr[i]));
+            lastNode->next = sll_create_node(sum % 10);
             lastNode = lastNode->next;
         }
+
+        ptr1 = ptr1->next;
+        ptr2 = ptr2->next;
+        carryOver = sum / 10;
     }
 
-    free(str1);
-    free(str2);
+    while (ptr1 != NULL) {
+        sum = carryOver + ptr1->data;
+
+        if (list->head == NULL) {
+            list->head = sll_create_node(sum % 10);
+            lastNode = list->head;
+        } else {
+            lastNode->next = sll_create_node(sum % 10);
+            lastNode = lastNode->next;
+        }
+
+        ptr1 = ptr1->next;
+        carryOver = sum / 10;
+    }
+
+    while (ptr2 != NULL) {
+        sum = carryOver + ptr2->data;
+
+        if (list->head == NULL) {
+            list->head = sll_create_node(sum % 10);
+            lastNode = list->head;
+        } else {
+            lastNode->next = sll_create_node(sum % 10);
+            lastNode = lastNode->next;
+        }
+
+        ptr2 = ptr2->next;
+        carryOver = sum / 10;
+    }
+
+    if (carryOver != 0) {
+        lastNode->next = sll_create_node(carryOver);
+    }
     return list;
     // TODO 3 END
 }
